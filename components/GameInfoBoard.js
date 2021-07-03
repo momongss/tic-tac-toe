@@ -11,7 +11,6 @@ export default class GameInfoBoard {
   }
 
   setState(state) {
-    console.log(state);
     if (state.score != null) this.state.score = state.score;
     if (state.turn != null) this.state.turn = state.turn;
     this.render();

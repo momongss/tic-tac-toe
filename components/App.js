@@ -12,7 +12,7 @@ const RESULT_WINLOSE = 2;
 
 export default class App {
   constructor($app) {
-    this.point = [
+    this.board = [
       ["", "", ""],
       ["", "", ""],
       ["", "", ""],
@@ -34,40 +34,43 @@ export default class App {
   }
 
   onClickRoom = (x, y) => {
-    // 이미 둔 자리
-    if (this.point[y][x] != "") return false;
+    if (this.board[y][x] !== "") return false;
 
-    this.point[y][x] = this.turn;
-    this.GameBoard.setGameBoard(this.point);
+    this.setGameBoard(this.board, x, y, this.turn);
 
-    const gameResult = this.checkResult();
+    const gameResult = this.checkResult(this.board);
     if (gameResult === RESULT_DRAW) {
-      this.Alarm.setState({ alarmText: "DRAW!!", show: true });
-      setTimeout(() => {
-        this.Alarm.setState({ show: false });
-      }, 1500);
-
-      this.clearBoard();
+      this.clearBoard("DRAW !!");
     } else if (gameResult === RESULT_WINLOSE) {
-      this.Alarm.setState({ alarmText: `WIN ${this.turn} !!`, show: true });
-      setTimeout(() => {
-        this.Alarm.setState({ show: false });
-      }, 1500);
-
-      this.clearBoard();
-
-      this.score[this.turn]++;
-      this.InfoBoard.setState({ score: this.score });
+      this.clearBoard(`WIN ${this.turn} !!`);
+      this.updateScore(this.turn);
     }
 
     this.changeTurn();
+  };
+
+  setGameBoard = (board, x, y, turn) => {
+    board[y][x] = turn;
+    this.GameBoard.setGameBoard(board);
+  };
+
+  updateScore = (turn) => {
+    this.score[turn]++;
+    this.InfoBoard.setState({ score: this.score });
+  };
+
+  showAlarm = (alarmText) => {
+    this.Alarm.setState({ alarmText: alarmText, show: true });
+    setTimeout(() => {
+      this.Alarm.setState({ show: false });
+    }, 1500);
   };
 
   clearGame = () => {
     this.turn = "O";
     this.turnCnt = 0;
 
-    this.point = [
+    this.board = [
       ["", "", ""],
       ["", "", ""],
       ["", "", ""],
@@ -78,18 +81,22 @@ export default class App {
       X: 0,
     };
 
-    this.GameBoard.setGameBoard(this.point);
+    this.GameBoard.setGameBoard(this.board);
     this.InfoBoard.setState({ score: this.score, turn: this.turn });
+
+    this.showAlarm("새로운 게임 !!");
   };
 
-  clearBoard = () => {
-    this.point = [
+  clearBoard = (alarmText) => {
+    this.board = [
       ["", "", ""],
       ["", "", ""],
       ["", "", ""],
     ];
-    this.GameBoard.setGameBoard(this.point);
+    this.GameBoard.setGameBoard(this.board);
     this.turnCnt = 0;
+
+    this.showAlarm(alarmText);
   };
 
   changeTurn = () => {
@@ -102,28 +109,28 @@ export default class App {
     this.InfoBoard.setState({ turn: this.turn });
   };
 
-  checkResult = () => {
+  checkResult = (board) => {
     const len = 3;
 
     // y축
     for (let y = 0; y < len; y++) {
-      if (this.point[y][0] != "" && this.point[y][1] === this.point[y][0] && this.point[y][2] === this.point[y][1]) {
+      if (board[y][0] != "" && board[y][1] === board[y][0] && board[y][2] === board[y][1]) {
         return RESULT_WINLOSE;
       }
     }
 
     // x축
     for (let x = 0; x < len; x++) {
-      if (this.point[0][x] != "" && this.point[1][x] === this.point[0][x] && this.point[2][x] === this.point[1][x]) {
+      if (board[0][x] != "" && board[1][x] === board[0][x] && board[2][x] === board[1][x]) {
         return RESULT_WINLOSE;
       }
     }
 
     // 대각선
-    if (this.point[0][0] != "" && this.point[0][0] === this.point[1][1] && this.point[2][2] === this.point[1][1]) {
+    if (board[0][0] != "" && board[0][0] === board[1][1] && board[2][2] === board[1][1]) {
       return RESULT_WINLOSE;
     }
-    if (this.point[2][0] != "" && this.point[2][0] === this.point[1][1] && this.point[0][2] === this.point[1][1]) {
+    if (board[2][0] != "" && board[2][0] === board[1][1] && board[0][2] === board[1][1]) {
       return RESULT_WINLOSE;
     }
 

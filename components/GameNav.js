@@ -28,7 +28,7 @@ export default class GameNav {
 
     const $clearBoardBtn = this.gameNavWrapper.querySelector(".reset-game");
     $clearBoardBtn.addEventListener("click", (e) => {
-      this.clearBoard();
+      this.clearBoard("새로운 판");
     });
   };
 }
